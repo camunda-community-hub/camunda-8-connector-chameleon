@@ -4,7 +4,7 @@
 VERSION=$(grep -m1 "<version>" ../pom.xml | sed -E 's/.*<version>(.*)<\/version>.*/\1/')
 
 IMAGE_LOCAL=pierre-yves-monnet/connector-8-pdf
-IMAGE_REMOTE=ghcr.io/camunda-community-hub/connector-8-pdf
+IMAGE_REMOTE=ghcr.io/camunda-community-hub/connector-8-chameleon
 
 echo "Building Docker image version $VERSION..."
 cd ..
