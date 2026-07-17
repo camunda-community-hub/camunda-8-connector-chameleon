@@ -1,0 +1,23 @@
+{
+  "components": [
+    {
+      "label": "Document preview",
+      "type": "documentPreview",
+      "layout": {
+        "row": "Row_0u3fz1c",
+        "columns": null
+      },
+      "id": "Field_16ao2kq",
+      "dataSource": "=[pingDocument]"
+    }
+  ],
+  "type": "default",
+  "id": "pingForm",
+  "executionPlatform": "Camunda Cloud",
+  "executionPlatformVersion": "8.9.0",
+  "exporter": {
+    "name": "Camunda Modeler",
+    "version": "5.48.0"
+  },
+  "schemaVersion": 19
+}

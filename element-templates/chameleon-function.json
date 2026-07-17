@@ -1,0 +1,516 @@
+{
+  "$schema": "https://unpkg.com/@camunda/zeebe-element-templates-json-schema/resources/schema.json",
+  "name": "Chameleon function",
+  "id": "io.camunda.connector.chameleon.ChameleonFunction",
+  "description": "Simulate any connector",
+  "documentationRef": "https://docs.camunda.io/docs/components/modeler/web-modeler/connectors/available-connectors/template/",
+  "icon": {
+    "contents": "data:image/png;base64,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"
+  },
+  "category": {
+    "id": "connectors",
+    "name": "Connectors"
+  },
+  "appliesTo": [
+    "bpmn:ServiceTask"
+  ],
+  "elementType": {
+    "value": "bpmn:ServiceTask"
+  },
+  "groups": [
+    {
+      "id": "ping",
+      "label": "Ping"
+    },
+    {
+      "id": "errors",
+      "label": "errors"
+    },
+    {
+      "id": "operations",
+      "label": "operations"
+    },
+    {
+      "id": "documents",
+      "label": "documents"
+    },
+    {
+      "id": "Input",
+      "label": "Input"
+    },
+    {
+      "id": "Output",
+      "label": "Output"
+    }
+  ],
+  "properties": [
+    {
+      "binding": {
+        "type": "zeebe:taskDefinition:type"
+      },
+      "type": "Hidden",
+      "value": "c-chameleon-function"
+    },
+    {
+      "binding": {
+        "key": "resultVariable",
+        "type": "zeebe:taskHeader"
+      },
+      "type": "Hidden",
+      "value": "result"
+    },
+    {
+      "id": "sleep",
+      "label": "Sleep time (ms)",
+      "description": "Sleep time to simulate a real connector",
+      "value": "0",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "sleep",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "Input"
+    },
+    {
+      "id": "pingSimulation",
+      "label": "Ping simulation?",
+      "description": "Ping simulation?",
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "binding": {
+        "name": "pingSimulation",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "ping"
+    },
+    {
+      "condition": {
+        "property": "pingSimulation",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "id": "pingMessage",
+      "label": "Ping Message",
+      "description": "A message is get to log it, and return",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "pingMessage",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "ping"
+    },
+    {
+      "id": "errorSimulation",
+      "label": "Error simulation?",
+      "description": "Error simulation?",
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "binding": {
+        "name": "errorSimulation",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "errors"
+    },
+    {
+      "condition": {
+        "property": "errorSimulation",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "id": "throwErrors",
+      "label": "Throws error rule",
+      "description": "Give a list of error code/percentage of execution. Example [ { \"code\": \"NULLPOINTER\", \"%\": 23, \"message\":\"this is the message\"}, { \"code\": \"BADAMOUNT\", \"%\": 10}]",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "throwErrors",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "errors"
+    },
+    {
+      "id": "operationSimulation",
+      "label": "Operation simulation?",
+      "description": "Operation simulation?",
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "binding": {
+        "name": "operationSimulation",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "operations"
+    },
+    {
+      "condition": {
+        "property": "operationSimulation",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "id": "operations",
+      "label": "Operations",
+      "description": "map of operation to execute. Structure is { \"\u003cvariableName\"\u003e : \"operation\"}. Operation is a value (string, or process variable reference) or \u003cfunction\u003e(\u003cparams\u003e).Functions are date,datetime,localdate,Localtime,zoneddatetime",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "operations",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "operations"
+    },
+    {
+      "id": "documentSimulation",
+      "label": "Document simulation?",
+      "description": "Document simulation?",
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "binding": {
+        "name": "documentSimulation",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "documents"
+    },
+    {
+      "condition": {
+        "property": "documentSimulation",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "id": "readDocumentName",
+      "label": "Read document name",
+      "description": "Read a document",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "readDocumentName",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "documents"
+    },
+    {
+      "condition": {
+        "property": "documentSimulation",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "id": "writeDocumentName",
+      "label": "Write document name",
+      "description": "Write a document with this name",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "writeDocumentName",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "documents"
+    },
+    {
+      "condition": {
+        "property": "documentSimulation",
+        "oneOf": [
+          "true"
+        ]
+      },
+      "id": "writeDocumentContent",
+      "label": "Write document content",
+      "description": "Content of the document to write",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "name": "writeDocumentContent",
+        "type": "zeebe:input"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "documents"
+    },
+    {
+      "id": "pingTimeStampMS_optional",
+      "label": "Saved Ping Time stamp?",
+      "description": "if a Ping is required, then produce this information",
+      "value": "false",
+      "binding": {
+        "name": "pingTimeStampMS_optional",
+        "type": "zeebe:input"
+      },
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "group": "Output"
+    },
+    {
+      "condition": {
+        "property": "pingTimeStampMS_optional",
+        "equals": "true"
+      },
+      "id": "pingTimeStampMS",
+      "label": "Ping Time stamp",
+      "description": "if a Ping is required, then produce this information",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "source": "\u003d result.pingTimeStampMS",
+        "type": "zeebe:output"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "Output"
+    },
+    {
+      "id": "pingIpAddress_optional",
+      "label": "Saved Ping IP Address?",
+      "description": "if a Ping is required, then produce this information",
+      "value": "false",
+      "binding": {
+        "name": "pingIpAddress_optional",
+        "type": "zeebe:input"
+      },
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "group": "Output"
+    },
+    {
+      "condition": {
+        "property": "pingIpAddress_optional",
+        "equals": "true"
+      },
+      "id": "pingIpAddress",
+      "label": "Ping IP Address",
+      "description": "if a Ping is required, then produce this information",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "source": "\u003d result.pingIpAddress",
+        "type": "zeebe:output"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "Output"
+    },
+    {
+      "id": "pingMessage_optional",
+      "label": "Saved Ping Message?",
+      "description": "if a Ping is required, then save the ping message",
+      "value": "false",
+      "binding": {
+        "name": "pingMessage_optional",
+        "type": "zeebe:input"
+      },
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "group": "Output"
+    },
+    {
+      "condition": {
+        "property": "pingMessage_optional",
+        "equals": "true"
+      },
+      "id": "pingMessage",
+      "label": "Ping Message",
+      "description": "if a Ping is required, then save the ping message",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "source": "\u003d result.pingMessage",
+        "type": "zeebe:output"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "Output"
+    },
+    {
+      "id": "documentWrite_optional",
+      "label": "Saved Document Write?",
+      "description": "Reference to the document created by the connector",
+      "value": "false",
+      "binding": {
+        "name": "documentWrite_optional",
+        "type": "zeebe:input"
+      },
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "group": "Output"
+    },
+    {
+      "condition": {
+        "property": "documentWrite_optional",
+        "equals": "true"
+      },
+      "id": "documentWrite",
+      "label": "Document Write",
+      "description": "Reference to the document created by the connector",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "source": "\u003d result.documentWrite",
+        "type": "zeebe:output"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "Output"
+    },
+    {
+      "id": "operationValue_optional",
+      "label": "Saved Operation Value?",
+      "description": "if an Operation is required, result of all operations as a map",
+      "value": "false",
+      "binding": {
+        "name": "operationValue_optional",
+        "type": "zeebe:input"
+      },
+      "type": "Dropdown",
+      "choices": [
+        {
+          "name": "Yes",
+          "value": "true"
+        },
+        {
+          "name": "No",
+          "value": "false"
+        }
+      ],
+      "group": "Output"
+    },
+    {
+      "condition": {
+        "property": "operationValue_optional",
+        "equals": "true"
+      },
+      "id": "operationValue",
+      "label": "Operation Value",
+      "description": "if an Operation is required, result of all operations as a map",
+      "type": "String",
+      "feel": "optional",
+      "binding": {
+        "source": "\u003d result.operationValue",
+        "type": "zeebe:output"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "group": "Output"
+    },
+    {
+      "label": "ControllerPage Expression",
+      "description": "Expression to define BPMN Errors to throw",
+      "type": "Hidden",
+      "value": "if is defined(error) then bpmnError(error.code, error.message) else null",
+      "binding": {
+        "key": "errorExpression",
+        "type": "zeebe:taskHeader"
+      }
+    }
+  ]
+}
