@@ -4,11 +4,12 @@
 
     <name>Chameleon</name>
     <description>Simulate a connector like a chameleon</description>
-    <groupId>io.camunda.connector</groupId>
-    <artifactId>chameleon</artifactId>
+    <groupId>org.camunda.connector</groupId>
+    <artifactId>connector-chameleon</artifactId>
     <packaging>jar</packaging>
     <!-- 1.0.0 -->
-    <version>1.0.0</version>
+    <!-- 1.1.0 Normalize groupId and artifactId-->
+    <version>1.1.0</version>
 
     <properties>
         <maven.compiler.release>23</maven.compiler.release>
@@ -132,7 +133,9 @@
         <dependency>
             <groupId>io.camunda.community</groupId>
             <artifactId>zeebe-cherry-runtime</artifactId>
-            <version>3.5.0</version>
+            <!-- 3.5.0's SdkRunnerCherryConnector required a 2-arg (function, ZeebeContainer) constructor;
+                 3.5.2 reverted to the 1-arg constructor that DocumentationGenerator.java calls. -->
+            <version>3.5.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -159,15 +162,154 @@
             </resource>
         </resources>
         <plugins>
+            <!-- spring-boot-starter-parent auto-binds spring-boot-maven-plugin's "repackage" goal
+                 to the package phase, which fat-ifies the main artifact and renames the original
+                 thin jar to original-*.jar - independently of, and conflicting with, the
+                 with-dependencies shade execution below. Disable it so the plain jar stays
+                 untouched (own classes only). -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>repackage</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <executions>
+                    <!-- spring-boot-starter-parent also pre-configures an unnamed ("default") execution
+                         of this same plugin bound to the package phase, which repackages the main jar
+                         into a Spring-Boot-style fat jar (this project's pom previously re-declared that
+                         same unnamed/"default" execution directly, which is what produced the
+                         dependency-reduced-pom.xml / bloated main-jar symptom). Disable it so it doesn't
+                         fight with "with-dependencies" below and fat-ify the plain jar. -->
                     <execution>
+                        <id>default</id>
+                        <phase>none</phase>
+                    </execution>
+                    <!-- "with-dependencies": a convenience jar for local use (upload to a Connector Runtime
+                         or Cherry instance by hand). Those hosts already provide Spring Boot + the whole
+                         Camunda connector/client/FEEL stack (and their own transitive libraries below), so
+                         this jar excludes all of that by groupId - but keeps pdfbox and freemarker (this
+                         project's own extra runtime libraries the host does NOT supply).
+                         shadedArtifactAttached MUST stay true here: with true, the shaded jar is attached
+                         as a SEPARATE classified artifact and the main jar is left untouched; with false,
+                         Shade instead REPLACES the main artifact's file with the fat jar.
+                         IMPORTANT: this project's OWN groupId is "io.camunda.connector" (artifactId
+                         "chameleon") - the SAME groupId as the host's connector-core/connector-runtime-core/
+                         etc. A blanket "io.camunda.connector:*" exclude would therefore ALSO strip this
+                         project's own compiled classes out of the shaded jar (empirically confirmed: the
+                         pdf-function sibling project has this exact same groupId clash, and its
+                         with-dependencies jar - built with that blanket exclude - contains zero
+                         io/camunda/connector/pdf/* classes). To avoid that, the io.camunda.connector
+                         host artifacts are excluded individually by artifactId below instead of by a
+                         "io.camunda.connector:*" groupId wildcard. -->
+                    <execution>
+                        <id>with-dependencies</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <shadedClassifierName>with-dependencies</shadedClassifierName>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <artifactSet>
+                                <excludes>
+                                    <!-- Camunda connector/client/FEEL stack. io.camunda.connector:* is
+                                         excluded by explicit artifactId, NOT a groupId wildcard, because
+                                         this project's own artifact ("io.camunda.connector:chameleon")
+                                         shares that same groupId - see the note on the "with-dependencies"
+                                         execution above. -->
+                                    <exclude>io.camunda.connector:connector-core</exclude>
+                                    <exclude>io.camunda.connector:connector-runtime-core</exclude>
+                                    <exclude>io.camunda.connector:connector-runtime-spring</exclude>
+                                    <exclude>io.camunda.connector:connector-utils</exclude>
+                                    <exclude>io.camunda.connector:connector-validation</exclude>
+                                    <exclude>io.camunda.connector:connector-object-mapper</exclude>
+                                    <exclude>io.camunda.connector:connector-feel-wrapper</exclude>
+                                    <exclude>io.camunda.connector:jackson-datatype-document</exclude>
+                                    <exclude>io.camunda.connector:jackson-datatype-feel</exclude>
+                                    <exclude>io.camunda.connector:element-template-generator-core</exclude>
+                                    <exclude>io.camunda.connector:http-client</exclude>
+                                    <exclude>io.camunda.connector:spring-boot-starter-camunda-connectors</exclude>
+                                    <exclude>io.camunda:*</exclude>
+                                    <exclude>org.camunda.feel:*</exclude>
+                                    <exclude>org.camunda.bpm.model:*</exclude>
+                                    <!-- Spring Boot / Spring Framework -->
+                                    <exclude>org.springframework.boot:*</exclude>
+                                    <exclude>org.springframework:*</exclude>
+                                    <exclude>ch.qos.logback:*</exclude>
+                                    <exclude>org.apache.logging.log4j:*</exclude>
+                                    <exclude>org.slf4j:*</exclude>
+                                    <exclude>org.apache.tomcat.embed:*</exclude>
+                                    <exclude>io.micrometer:*</exclude>
+                                    <exclude>org.hdrhistogram:*</exclude>
+                                    <exclude>org.latencyutils:*</exclude>
+                                    <exclude>org.hibernate.validator:*</exclude>
+                                    <exclude>org.jboss.logging:*</exclude>
+                                    <exclude>com.fasterxml:classmate</exclude>
+                                    <exclude>org.yaml:*</exclude>
+                                    <!-- gRPC / Netty (Zeebe gateway transport) -->
+                                    <exclude>io.grpc:*</exclude>
+                                    <exclude>io.netty:*</exclude>
+                                    <exclude>io.opencensus:*</exclude>
+                                    <exclude>io.perfmark:*</exclude>
+                                    <exclude>com.google.protobuf:*</exclude>
+                                    <exclude>com.google.api.grpc:*</exclude>
+                                    <exclude>com.google.android:*</exclude>
+                                    <!-- HTTP clients (only pulled in transitively via the excluded
+                                         io.camunda.connector:http-client - this project has no own
+                                         dependency that needs them, unlike e.g. the pdf connector's
+                                         filestorage) -->
+                                    <exclude>org.apache.httpcomponents:*</exclude>
+                                    <exclude>org.apache.httpcomponents.client5:*</exclude>
+                                    <exclude>org.apache.httpcomponents.core5:*</exclude>
+                                    <exclude>com.google.http-client:*</exclude>
+                                    <exclude>com.google.auth:*</exclude>
+                                    <exclude>com.google.auto.value:*</exclude>
+                                    <exclude>com.google.api:api-common</exclude>
+                                    <exclude>javax.annotation:javax.annotation-api</exclude>
+                                    <exclude>commons-codec:*</exclude>
+                                    <!-- Jackson -->
+                                    <exclude>com.fasterxml.jackson.core:*</exclude>
+                                    <exclude>com.fasterxml.jackson.dataformat:*</exclude>
+                                    <exclude>com.fasterxml.jackson.datatype:*</exclude>
+                                    <exclude>com.fasterxml.jackson.module:*</exclude>
+                                    <exclude>com.fasterxml.uuid:*</exclude>
+                                    <exclude>tools.jackson.core:*</exclude>
+                                    <!-- Scala (FEEL engine; also covers this project's own unused
+                                         jackson-module-scala_2.13 / scala-library, see dependency:tree -
+                                         no source file references scala or jackson-module-scala) -->
+                                    <exclude>org.scala-lang:*</exclude>
+                                    <exclude>com.lihaoyi:*</exclude>
+                                    <!-- Misc transitive libraries -->
+                                    <exclude>com.auth0:*</exclude>
+                                    <exclude>com.github.ben-manes.caffeine:*</exclude>
+                                    <exclude>com.google.code.findbugs:*</exclude>
+                                    <exclude>com.google.code.gson:*</exclude>
+                                    <exclude>com.google.errorprone:*</exclude>
+                                    <exclude>com.google.guava:*</exclude>
+                                    <exclude>com.google.j2objc:*</exclude>
+                                    <exclude>com.thoughtworks.paranamer:*</exclude>
+                                    <exclude>dev.failsafe:*</exclude>
+                                    <exclude>jakarta.annotation:*</exclude>
+                                    <exclude>jakarta.validation:*</exclude>
+                                    <exclude>io.pebbletemplates:*</exclude>
+                                    <exclude>net.steppschuh.markdowngenerator:*</exclude>
+                                    <exclude>org.apache.commons:*</exclude>
+                                    <exclude>org.bouncycastle:*</exclude>
+                                    <exclude>org.checkerframework:*</exclude>
+                                    <exclude>org.codehaus.mojo:animal-sniffer-annotations</exclude>
+                                    <exclude>org.jspecify:*</exclude>
+                                    <exclude>org.unbescape:*</exclude>
+                                    <exclude>uk.co.jemos.podam:*</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -223,5 +365,50 @@
         </pluginRepository>
     </pluginRepositories>
 
+
+    <profiles>
+        <!-- This project has no .github/workflows release pipeline today, so this profile is never
+             activated automatically. It's added anyway so that if/when a release pipeline is added
+             using the standard community-action-maven-release action (its default release-profile
+             id - see involvedusers' deploy.yml for the working reference), the with-dependencies
+             shade execution is already correctly scoped out of the Central release from day one. -->
+        <profile>
+            <id>community-action-maven-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>with-dependencies</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
